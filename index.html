@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Who's Left Out — Fintech Adoption &amp; Exclusion in Pakistan</title>
+<meta name="description" content="A data science investigation into who is included in Pakistan's digital financial system, who is left out, and why it isn't just about access.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #12172B;
+    --bg-card: #1B2140;
+    --bg-card-hover: #232B52;
+    --text: #F3EFE6;
+    --text-muted: #9498B3;
+    --text-faint: #5B6083;
+    --gold: #E8A33D;
+    --gold-dim: #8C6B34;
+    --rose: #C1495A;
+    --rose-dim: #6E3540;
+    --hairline: #2A3057;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+
+  .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+  }
+
+  a { color: var(--gold); text-decoration: none; border-bottom: 1px solid var(--gold-dim); }
+  a:hover { border-bottom-color: var(--gold); }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    padding: 100px 0 60px;
+  }
+
+  #network {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1.8s ease;
+  }
+  #network.loaded { opacity: 1; }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 22px;
+    display: block;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4.4rem);
+    max-width: 11.5em;
+    margin-bottom: 26px;
+  }
+
+  .hero h1 .gold { color: var(--gold); }
+  .hero h1 .rose { color: var(--rose); }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    max-width: 34em;
+    margin-bottom: 36px;
+  }
+
+  .scroll-cue {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-faint);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- SECTIONS ---------- */
+  section {
+    padding: 96px 0;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 18px;
+    display: block;
+  }
+
+  section h2 {
+    font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+    max-width: 14em;
+    margin-bottom: 20px;
+  }
+
+  section > p.lede {
+    color: var(--text-muted);
+    max-width: 38em;
+    font-size: 1.05rem;
+    margin-bottom: 48px;
+  }
+
+  /* stat grid */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--hairline);
+    border: 1px solid var(--hairline);
+    margin-bottom: 8px;
+  }
+
+  .stat {
+    background: var(--bg);
+    padding: 32px 24px;
+  }
+
+  .stat .num {
+    font-size: clamp(2rem, 4vw, 2.6rem);
+    display: block;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .stat.rose .num { color: var(--rose); }
+
+  .stat .label {
+    font-size: 0.92rem;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 640px) {
+    .stat-grid { grid-template-columns: 1fr; }
+  }
+
+  /* finding cards */
+  .finding {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 22px;
+    padding: 28px 0;
+    border-top: 1px solid var(--hairline);
+  }
+  .finding:first-of-type { border-top: none; }
+
+  .finding .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-faint);
+    padding-top: 4px;
+  }
+
+  .finding h3 {
+    font-size: 1.15rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .finding p {
+    color: var(--text-muted);
+    font-size: 0.98rem;
+  }
+
+  .finding .num { color: var(--gold); }
+
+  /* method strip */
+  .method-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
+  }
+  .pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    border: 1px solid var(--hairline);
+    padding: 7px 14px;
+    border-radius: 100px;
+  }
+
+  /* footer / cta */
+  .cta {
+    text-align: left;
+    padding-bottom: 140px;
+  }
+
+  .cta h2 { margin-bottom: 18px; }
+
+  .cta-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .cta-links a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    border: 1px solid var(--gold-dim);
+    border-bottom: 1px solid var(--gold-dim);
+    padding: 12px 22px;
+    border-radius: 4px;
+    color: var(--text);
+  }
+  .cta-links a:hover {
+    background: var(--bg-card);
+    border-color: var(--gold);
+  }
+  .cta-links a.primary {
+    background: var(--gold);
+    color: var(--bg);
+    border-color: var(--gold);
+  }
+  .cta-links a.primary:hover { opacity: 0.9; }
+
+  footer {
+    padding: 40px 0 60px;
+    color: var(--text-faint);
+    font-size: 0.82rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    #network { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <canvas id="network"></canvas>
+  <div class="wrap hero-content">
+    <span class="eyebrow">A data science investigation · Pakistan, 2024</span>
+    <h1>Every dot is a person.<br>Most of them <span class="rose">aren't connected</span><br>to the system at all.</h1>
+    <p class="hero-sub">
+      An explainable machine learning study of who has access to formal financial
+      services in Pakistan, who doesn't, and what the data says about why —
+      built on national survey microdata, not assumptions.
+    </p>
+    <span class="scroll-cue">Scroll ↓</span>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <span class="section-label">The Gap</span>
+    <h2>Access to Pakistan's financial system is the exception, not the rule.</h2>
+    <p class="lede">
+      Based on 1,000 individually surveyed adults in the Global Findex 2024 Pakistan
+      dataset — a nationally representative sample of who banks, who borrows, who saves,
+      and who is shut out entirely.
+    </p>
+    <div class="stat-grid">
+      <div class="stat">
+        <span class="num">68.2%</span>
+        <span class="label">of adults surveyed have no account of any kind — no bank, no mobile money</span>
+      </div>
+      <div class="stat rose">
+        <span class="num">75%</span>
+        <span class="label">of the least digitally-engaged group — found by the data itself, without being told to look for gender — are women</span>
+      </div>
+      <div class="stat rose">
+        <span class="num">16.7%</span>
+        <span class="label">of excluded people could not raise emergency funds at all, vs. just 1.3% of the most digitally active group</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="section-label">What Drives It</span>
+    <h2>The same two things predict adoption for almost everyone.</h2>
+    <p class="lede">
+      A Random Forest model, explained with SHAP, was used to rank which factors most
+      strongly predict a person's level of financial engagement — and the ranking barely
+      changes across gender, region, or behavioural group.
+    </p>
+
+    <div class="finding">
+      <span class="tag">01</span>
+      <div>
+        <h3>Phone access is the strongest predictor, everywhere</h3>
+        <p>Whether someone owns no phone, a basic phone, or a smartphone outranks every
+        other factor tested — income, education, and age included — for men and women,
+        rural and urban respondents alike.</p>
+      </div>
+    </div>
+    <div class="finding">
+      <span class="tag">02</span>
+      <div>
+        <h3>Being in the workforce is the second-strongest driver</h3>
+        <p>People earning an income, formally or informally, are consistently more
+        likely to hold and use financial accounts — a pattern that held across every
+        subgroup tested.</p>
+      </div>
+    </div>
+    <div class="finding">
+      <span class="tag">03</span>
+      <div>
+        <h3>What differs between groups isn't the driver — it's the outcome</h3>
+        <p>The barriers are the same for everyone. What differs sharply is who actually
+        clears them. That's the real story this project is built around.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="section-label">Beyond The Numbers</span>
+    <h2>Two barriers rarely show up in an access statistic.</h2>
+    <p class="lede">
+      Findex asks people directly why they don't have a phone or an account. Their own
+      answers tell a fuller story than "no access" alone.
+    </p>
+
+    <div class="finding">
+      <span class="tag">Family &amp; friends</span>
+      <div>
+        <h3>The real safety net isn't a bank — it's people</h3>
+        <p>Across <span class="num">every</span> adoption tier, <span class="num">43–50%</span>
+        of respondents name family or friends as their main source of emergency funds —
+        far ahead of savings or formal loans, even among the most digitally advanced
+        group. Formal fintech in Pakistan sits on top of an informal system that already
+        does most of the work.</p>
+      </div>
+    </div>
+    <div class="finding">
+      <span class="tag">Why women lack phones</span>
+      <div>
+        <h3>Money is the biggest reason. It isn't the only one.</h3>
+        <p><span class="num">43.8%</span> of women without a phone cite affordability —
+        but <span class="num">22.8%</span> cite family or community disapproval, and
+        <span class="num">17.8%</span> cite safety concerns. Closing the gap needs more
+        than cheaper devices.</p>
+      </div>
+    </div>
+    <div class="finding">
+      <span class="tag">The cost of being included</span>
+      <div>
+        <h3>Digital engagement brings real fraud exposure</h3>
+        <p><span class="num">30.4%</span> of the more digitally-engaged group report a
+        scam or phishing attempt via phone — compared to just <span class="num">5.0%</span>
+        of the less-engaged group. Getting people online isn't the finish line.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="section-label">The Method</span>
+    <h2>Built to be checked, not just believed.</h2>
+    <p class="lede">
+      Every number on this page comes from a documented, reproducible pipeline —
+      supervised prediction, independently-validated clustering, and formal statistical
+      testing, not a single model run.
+    </p>
+    <div class="method-strip">
+      <span class="pill">Random Forest &amp; XGBoost</span>
+      <span class="pill">SHAP explainability</span>
+      <span class="pill">k-means clustering</span>
+      <span class="pill">Bootstrap cluster validation</span>
+      <span class="pill">Chi-square &amp; Cramér's V</span>
+      <span class="pill">Global Findex Pakistan 2024, n=1,000</span>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="wrap">
+    <span class="section-label">Go Deeper</span>
+    <h2>The full analysis, code, and paper are public.</h2>
+    <p class="lede">
+      Every notebook, every statistical test, and the full write-up are on GitHub —
+      built to be read, reproduced, and challenged.
+    </p>
+    <div class="cta-links">
+      <a class="primary" href="https://github.com/umema2004/Explainable-ML-for-Fintech-Adoption-Behavioural-Segmentation-in-Pakistan" target="_blank" rel="noopener">View the GitHub repo →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Independent research project · Global Findex Pakistan microdata, 2024 · Built with Python, scikit-learn &amp; XGBoost
+  </div>
+</footer>
+
+<script>
+(function () {
+  const canvas = document.getElementById('network');
+  const ctx = canvas.getContext('2d');
+  let W, H, dots = [];
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth * devicePixelRatio;
+    H = canvas.height = canvas.offsetHeight * devicePixelRatio;
+  }
+
+  function seedRandom(seed) {
+    return function () {
+      seed = (seed * 9301 + 49297) % 233280;
+      return seed / 233280;
+    };
+  }
+
+  function buildDots() {
+    dots = [];
+    const rand = seedRandom(42);
+    const total = 160;
+
+    // Cluster A: majority-female, mostly excluded (rose-dominant, left/lower spread)
+    const clusterACount = Math.round(total * 0.575); // 57.5% of sample per k=2 split
+    for (let i = 0; i < clusterACount; i++) {
+      const cx = 0.30 + (rand() - 0.5) * 0.42;
+      const cy = 0.55 + (rand() - 0.5) * 0.5;
+      const engaged = rand() < 0.10; // ~10% of this cluster still shows some engagement
+      dots.push({ x: cx, y: cy, engaged, r: 1.6 + rand() * 1.8 });
+    }
+    // Cluster B: majority-male, mostly engaged (gold-dominant, right/upper spread)
+    const clusterBCount = total - clusterACount;
+    for (let i = 0; i < clusterBCount; i++) {
+      const cx = 0.72 + (rand() - 0.5) * 0.42;
+      const cy = 0.38 + (rand() - 0.5) * 0.5;
+      const engaged = rand() < 0.72;
+      dots.push({ x: cx, y: cy, engaged, r: 1.6 + rand() * 1.8 });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    dots.forEach(d => {
+      const x = d.x * W, y = d.y * H;
+      ctx.beginPath();
+      ctx.arc(x, y, d.r * devicePixelRatio, 0, Math.PI * 2);
+      if (d.engaged) {
+        ctx.fillStyle = 'rgba(232, 163, 61, 0.85)';
+      } else {
+        ctx.fillStyle = 'rgba(193, 73, 90, 0.38)';
+      }
+      ctx.fill();
+    });
+  }
+
+  function init() {
+    resize();
+    buildDots();
+    draw();
+    requestAnimationFrame(() => canvas.classList.add('loaded'));
+  }
+
+  window.addEventListener('resize', () => { resize(); draw(); });
+  window.addEventListener('load', init);
+  if (document.readyState === 'complete') init();
+})();
+</script>
+
+</body>
+</html>
