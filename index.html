@@ -276,7 +276,7 @@
   <canvas id="network"></canvas>
   <div class="wrap hero-content">
     <span class="eyebrow">A data science investigation · Pakistan, 2024</span>
-    <h1>Every dot is a person.<br>Most of them <span class="rose">aren't connected</span><br>to the system at all.</h1>
+    <h1>Every dot is a person.<br>Almost half of them <span class="rose">aren't connected</span><br>to the system at all.</h1>
     <p class="hero-sub">
       An explainable machine learning study of who has access to formal financial
       services in Pakistan, who doesn't, and what the data says about why —
@@ -289,24 +289,25 @@
 <section>
   <div class="wrap">
     <span class="section-label">The Gap</span>
-    <h2>Access to Pakistan's financial system is the exception, not the rule.</h2>
+    <h2>Two behavioural segments emerged from the data — without gender ever being an input.</h2>
     <p class="lede">
-      Based on 1,000 individually surveyed adults in the Global Findex 2024 Pakistan
-      dataset — a nationally representative sample of who banks, who borrows, who saves,
-      and who is shut out entirely.
+      Based on Global Findex Pakistan microdata — a nationally representative survey of
+      who banks, who borrows, who saves, and who is shut out entirely. K-means clustering
+      was run purely on demographic and access variables, with no group labels supplied
+      in advance.
     </p>
     <div class="stat-grid">
+      <div class="stat rose">
+        <span class="num">43.1%</span>
+        <span class="label">of respondents fall into a cluster the model itself labelled "Digitally Excluded" — 96.3% of whom are women</span>
+      </div>
       <div class="stat">
-        <span class="num">68.2%</span>
-        <span class="label">of adults surveyed have no account of any kind — no bank, no mobile money</span>
+        <span class="num">44.3%</span>
+        <span class="label">fall into a "Connected but Unengaged" cluster — just 16.3% of whom are women</span>
       </div>
       <div class="stat rose">
-        <span class="num">75%</span>
-        <span class="label">of the least digitally-engaged group — found by the data itself, without being told to look for gender — are women</span>
-      </div>
-      <div class="stat rose">
-        <span class="num">16.7%</span>
-        <span class="label">of excluded people could not raise emergency funds at all, vs. just 1.3% of the most digitally active group</span>
+        <span class="num">V = 0.807</span>
+        <span class="label">Cramér's V — a very strong statistical association between cluster membership and gender, not a coincidence</span>
       </div>
     </div>
   </div>
@@ -344,50 +345,8 @@
       <span class="tag">03</span>
       <div>
         <h3>What differs between groups isn't the driver — it's the outcome</h3>
-        <p>The barriers are the same for everyone. What differs sharply is who actually
+        <p>The barriers are similar for everyone. What differs sharply is who actually
         clears them. That's the real story this project is built around.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap">
-    <span class="section-label">Beyond The Numbers</span>
-    <h2>Two barriers rarely show up in an access statistic.</h2>
-    <p class="lede">
-      Findex asks people directly why they don't have a phone or an account. Their own
-      answers tell a fuller story than "no access" alone.
-    </p>
-
-    <div class="finding">
-      <span class="tag">Family &amp; friends</span>
-      <div>
-        <h3>The real safety net isn't a bank — it's people</h3>
-        <p>Across <span class="num">every</span> adoption tier, <span class="num">43–50%</span>
-        of respondents name family or friends as their main source of emergency funds —
-        far ahead of savings or formal loans, even among the most digitally advanced
-        group. Formal fintech in Pakistan sits on top of an informal system that already
-        does most of the work.</p>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="tag">Why women lack phones</span>
-      <div>
-        <h3>Money is the biggest reason. It isn't the only one.</h3>
-        <p><span class="num">43.8%</span> of women without a phone cite affordability —
-        but <span class="num">22.8%</span> cite family or community disapproval, and
-        <span class="num">17.8%</span> cite safety concerns. Closing the gap needs more
-        than cheaper devices.</p>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="tag">The cost of being included</span>
-      <div>
-        <h3>Digital engagement brings real fraud exposure</h3>
-        <p><span class="num">30.4%</span> of the more digitally-engaged group report a
-        scam or phishing attempt via phone — compared to just <span class="num">5.0%</span>
-        of the less-engaged group. Getting people online isn't the finish line.</p>
       </div>
     </div>
   </div>
@@ -399,16 +358,63 @@
     <h2>Built to be checked, not just believed.</h2>
     <p class="lede">
       Every number on this page comes from a documented, reproducible pipeline —
-      supervised prediction, independently-validated clustering, and formal statistical
-      testing, not a single model run.
+      tuned and cross-validated models, independently-stability-tested clustering, and
+      formal statistical significance testing, not a single model run.
     </p>
+    <div class="stat-grid">
+      <div class="stat">
+        <span class="num">80.0%</span>
+        <span class="label">XGBoost test accuracy (macro-F1 0.481) predicting adoption tier from demographic &amp; access features</span>
+      </div>
+      <div class="stat">
+        <span class="num">0.494</span>
+        <span class="label">macro-F1 for the tuned, cross-validated Random Forest — hyperparameters selected via RandomizedSearchCV</span>
+      </div>
+      <div class="stat">
+        <span class="num">p = 0.0001</span>
+        <span class="label">chi-square significance for the urban/rural association with adoption tier</span>
+      </div>
+    </div>
     <div class="method-strip">
-      <span class="pill">Random Forest &amp; XGBoost</span>
+      <span class="pill">Random Forest &amp; XGBoost, hyperparameter-tuned</span>
       <span class="pill">SHAP explainability</span>
-      <span class="pill">k-means clustering</span>
-      <span class="pill">Bootstrap cluster validation</span>
+      <span class="pill">k-means, bootstrap-validated</span>
+      <span class="pill">Ward agglomerative cross-check</span>
       <span class="pill">Chi-square &amp; Cramér's V</span>
-      <span class="pill">Global Findex Pakistan 2024, n=1,000</span>
+      <span class="pill">Calibration &amp; ablation analysis</span>
+      <span class="pill">Global Findex Pakistan, 2024</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="section-label">What's Next</span>
+    <h2>This project is still active. Two things are in progress.</h2>
+    <p class="lede">
+      The analysis above is complete and published. Two extensions are currently in
+      development and will be added here once finished.
+    </p>
+
+    <div class="finding">
+      <span class="tag">In progress</span>
+      <div>
+        <h3>Why, not just who: self-reported reasons &amp; coping mechanisms</h3>
+        <p>Findex asks people directly why they lack a phone or an account, and what
+        they actually do when they need emergency money. This next phase analyses those
+        answers directly, to move from "what predicts exclusion" to "what excluded
+        people say about their own situation."</p>
+      </div>
+    </div>
+    <div class="finding">
+      <span class="tag">In progress</span>
+      <div>
+        <h3>A financial planning &amp; education tool, built on these findings</h3>
+        <p>An application that uses this project's model to estimate a person's likely
+        financial engagement level and explain the factors behind it — paired with
+        general financial education content, not personalised advice. Built to be used
+        safely by exactly the population this research is about.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -422,7 +428,7 @@
       built to be read, reproduced, and challenged.
     </p>
     <div class="cta-links">
-      <a class="primary" href="https://github.com/umema2004/Explainable-ML-for-Fintech-Adoption-Behavioural-Segmentation-in-Pakistan" target="_blank" rel="noopener">View the GitHub repo →</a>
+      <a class="primary" href="https://github.com/abdurrehmanashar/Explainable-ML-for-Fintech-Adoption-Behavioural-Segmentation-in-Pakistan" target="_blank" rel="noopener">View the GitHub repo →</a>
     </div>
   </div>
 </section>
@@ -456,20 +462,28 @@
     const rand = seedRandom(42);
     const total = 160;
 
-    // Cluster A: majority-female, mostly excluded (rose-dominant, left/lower spread)
-    const clusterACount = Math.round(total * 0.575); // 57.5% of sample per k=2 split
+    // Cluster A: "Digitally Excluded Women" — 43.1% of sample, 96.3% female
+    const clusterACount = Math.round(total * 0.431);
     for (let i = 0; i < clusterACount; i++) {
-      const cx = 0.30 + (rand() - 0.5) * 0.42;
+      const cx = 0.28 + (rand() - 0.5) * 0.40;
       const cy = 0.55 + (rand() - 0.5) * 0.5;
-      const engaged = rand() < 0.10; // ~10% of this cluster still shows some engagement
+      const engaged = rand() < 0.06;
       dots.push({ x: cx, y: cy, engaged, r: 1.6 + rand() * 1.8 });
     }
-    // Cluster B: majority-male, mostly engaged (gold-dominant, right/upper spread)
-    const clusterBCount = total - clusterACount;
+    // Cluster B: "Connected but Unengaged" — 44.3% of sample, 16.3% female
+    const clusterBCount = Math.round(total * 0.443);
     for (let i = 0; i < clusterBCount; i++) {
-      const cx = 0.72 + (rand() - 0.5) * 0.42;
-      const cy = 0.38 + (rand() - 0.5) * 0.5;
-      const engaged = rand() < 0.72;
+      const cx = 0.70 + (rand() - 0.5) * 0.42;
+      const cy = 0.40 + (rand() - 0.5) * 0.5;
+      const engaged = rand() < 0.55;
+      dots.push({ x: cx, y: cy, engaged, r: 1.6 + rand() * 1.8 });
+    }
+    // Cluster C: remaining ~12.6%, scattered between
+    const clusterCCount = total - clusterACount - clusterBCount;
+    for (let i = 0; i < clusterCCount; i++) {
+      const cx = 0.50 + (rand() - 0.5) * 0.5;
+      const cy = 0.62 + (rand() - 0.5) * 0.5;
+      const engaged = rand() < 0.30;
       dots.push({ x: cx, y: cy, engaged, r: 1.6 + rand() * 1.8 });
     }
   }
